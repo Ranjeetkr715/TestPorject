@@ -43,6 +43,7 @@ jobs:
       - name: Deploy code
         run: echo "Deploying..."
   send-email:
+    needs : [lint,test,build]
     name: Send Email Notification
     runs-on: ubuntu-latest
     if: always() # Run this step even if previous steps fail
