@@ -59,3 +59,18 @@ jobs:
           to: shael7059@gmail.com
           from: ranjeetkr369@gmail.com
           body: "The Angular CI/CD workflow has completed with status: ${{ job.status }}." 
+  build-and-push:
+    needs: [lint, test, build, send-email]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t ranjeetkr1202/test11angular_project:latest .
+
+      - name: Push Docker image
+        run: docker push ranjeetkr1202/test11angular_project:latest
