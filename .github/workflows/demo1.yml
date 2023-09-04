@@ -56,6 +56,6 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Angular CI/CD Status: ${{ job.status }}"
-          to: ${{ github.actor }}
-          from: ranjeetkr369@email.com
+          to: shael7059@gmail.com
+          from: ranjeetkr369@gmail.com
           body: "The Angular CI/CD workflow has completed with status: ${{ job.status }}." 
