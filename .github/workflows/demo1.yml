@@ -64,7 +64,7 @@ jobs:
           from: ranjeetkr369@gmail.com
           body: "The Angular CI/CD workflow has completed with status: ${{ job.status }}."
 
-  build-and-push code in docker:
+  build-and-push_code_in_docker:
     needs: [lint, test, build, send-email]
     runs-on: ubuntu-latest
     steps:
