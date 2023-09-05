@@ -1,5 +1,6 @@
 name: prutil
-'on':
+
+on:
   pull_request:
     types:
       - opened
@@ -7,86 +8,82 @@ name: prutil
     branches:
       - main
       - dev
-  workflow_dispatch: null
+  workflow_dispatch:
   push:
     branches:
       - main
       - dev
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     if: github.event.pull_request.review.state == 'approved'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # Use the latest version of actions/checkout
       - name: Install dependencies
         run: npm ci
       - name: Lint
         run: npm run lint
+
   test:
     needs: lint
     runs-on: ubuntu-latest
     if: github.event.pull_request.review.state == 'approved'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # Use the latest version of actions/checkout
       - name: Install dependencies
         run: npm ci
       - name: Test code
         run: npm run test
+
   build:
     needs: test
     runs-on: ubuntu-latest
     if: github.event.pull_request.review.state == 'approved'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # Use the latest version of actions/checkout
       - name: Install dependencies
         run: npm ci
       - name: Build code
         run: npm run build
       - name: Deploy code
         run: echo "Deploying..."
+
   send-email:
-    needs:
-      - lint
-      - test
-      - build
+    needs: [lint, test, build]
     name: Send Email Notification
     runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.review.state == 'approved' || github.event_name
-      == 'workflow_dispatch'
+    if: github.event.pull_request.review.state == 'approved' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: '${{ secrets.EMAIL_USERNAME }}'
-          password: '${{ secrets.EMAIL_PASSWORD }}'
-          subject: 'Angular CI/CD Status: ${{ job.status }}'
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Angular CI/CD Status: ${{ job.status }}"
           to: shael7059@gmail.com
           from: ranjeetkr369@gmail.com
-          body: >-
-            The Angular CI/CD workflow has completed with status: ${{ job.status
-            }}.
-  build-and-push-code-in-docker:
-    needs:
-      - lint
-      - test
-      - build
-      - send-email
+          body: "The Angular CI/CD workflow has completed with status: ${{ job.status }}."
+
+  build-and-push_code_in_docker:
+    needs: [lint, test, build, send-email]
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    if: github.event.pull_request.review.state == 'approved'
+    if: github.event.pull_request.review.state == 'approved' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # Use the latest version of actions/checkout
+
       - name: Login to Docker Hub
-        run: >-
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{
-          secrets.DOCKER_PASSWORD }}
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build Docker image
-        run: 'docker build -t ranjeetkr1202/test11angular_project:latest .'
+        run: docker build -t ranjeetkr1202/test11angular_project:latest .
+
       - name: Push Docker image
-        run: 'docker push ranjeetkr1202/test11angular_project:latest'
+        run: docker push ranjeetkr1202/test11angular_project:latest
